@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volunteer Reference Form — SAFE Alliance</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --brand: #005a8e;
+      --brand-light: #e8f3fa;
+      --accent: #c8102e;
+      --border: #c8d6e0;
+      --text: #1a2733;
+      --muted: #5a6872;
+      --bg: #f5f8fb;
+      --white: #ffffff;
+      --radius: 8px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; color: var(--text); background: var(--bg); line-height: 1.55; }
+
+    .site-header { background: var(--brand); color: #fff; padding: 28px 24px 22px; text-align: center; }
+    .site-header h1 { font-size: 1.75rem; font-weight: 700; }
+    .site-header p { margin-top: 6px; opacity: .85; font-size: .95rem; }
+
+    .form-container { max-width: 760px; margin: 32px auto; padding: 0 16px 60px; }
+
+    .intro-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      font-size: .95rem;
+      line-height: 1.7;
+      color: #3a4a55;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: var(--brand-light);
+      border-bottom: 2px solid var(--brand);
+      padding: 14px 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--brand);
+    }
+    .card-body { padding: 22px 24px; }
+
+    .field-row { display: grid; gap: 16px; margin-bottom: 16px; }
+    .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 580px) { .field-row.cols-2 { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; }
+    .field label { font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px; }
+    .field label .req { color: var(--accent); margin-left: 2px; }
+    input[type="text"], input[type="email"], input[type="date"], select, textarea {
+      border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px;
+      font-size: .95rem; color: var(--text); background: #fff; width: 100%;
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(0,90,142,.12);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+
+    /* Rating row */
+    .rating-block { margin-bottom: 20px; }
+    .rating-label { font-weight: 700; font-size: .97rem; color: var(--text); margin-bottom: 2px; }
+    .rating-sub { font-style: italic; font-size: .87rem; color: var(--muted); margin-bottom: 10px; }
+    .rating-options { display: flex; gap: 12px; flex-wrap: wrap; }
+    .rating-option { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .rating-option input { accent-color: var(--brand); width: 16px; height: 16px; cursor: pointer; }
+    .rating-option span { font-size: .93rem; }
+
+    /* How-well options */
+    .how-well { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .how-well label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: .95rem; }
+    .how-well input { accent-color: var(--brand); width: 17px; height: 17px; }
+
+    .field input.invalid, .field select.invalid, .field textarea.invalid { border-color: var(--accent); }
+    .field .err-msg { color: var(--accent); font-size: .78rem; margin-top: 4px; display: none; }
+    .field.has-error .err-msg { display: block; }
+
+    .submit-row { display: flex; justify-content: flex-end; margin-top: 28px; }
+    button.btn-submit {
+      padding: 13px 40px; border-radius: 6px; border: none;
+      background: var(--accent); color: #fff; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: filter .15s;
+    }
+    button.btn-submit:hover { filter: brightness(.9); }
+
+    #thank-you { display: none; text-align: center; padding: 60px 24px; }
+    #thank-you .icon { font-size: 3.5rem; }
+    #thank-you h2 { margin: 16px 0 10px; font-size: 1.6rem; color: var(--brand); }
+    #thank-you p { color: var(--muted); max-width: 500px; margin: 0 auto; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="/" style="color:rgba(255,255,255,.7);font-size:.85rem;text-decoration:none;display:block;margin-bottom:8px;">← Back to Home</a>
+  <h1>Reference for Prospective SAFE Volunteer</h1>
+  <p>The SAFE Alliance &mdash; 2025</p>
+</header>
+
+<div class="form-container">
+  <div class="intro-card">
+    The applicant named below is training to be a volunteer with SAFE and has provided your name as a reference.
+    SAFE volunteers work with individuals who are affected by child abuse/neglect, sexual assault, and domestic violence.
+    Please respond to the following questions to the best of your ability. Your responses will be kept confidential.
+    <br /><br />
+    When finished, your responses will be downloaded as a PDF. Please email it to
+    <a href="mailto:SAFEVolunteer@safeaustin.org">SAFEVolunteer@safeaustin.org</a>.
+  </div>
+
+  <form id="ref-form" novalidate>
+
+    <!-- Basic Info -->
+    <div class="card">
+      <div class="card-header">Basic Information</div>
+      <div class="card-body">
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Today's Date <span class="req">*</span></label>
+            <input type="date" name="ref_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field" style="visibility:hidden"></div>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Your Name (Reference) <span class="req">*</span></label>
+            <input type="text" name="ref_name" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Reference Provided For (Applicant's Name) <span class="req">*</span></label>
+            <input type="text" name="applicant_name" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>How long have you known this person? <span class="req">*</span></label>
+            <input type="text" name="known_length" placeholder="e.g., 3 years" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Your Email (optional — for follow-up)</label>
+            <input type="email" name="ref_email" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>I know this person <span class="req">*</span></label>
+          <div class="how-well">
+            <label><input type="radio" name="how_well" value="Very Well" required /> Very Well</label>
+            <label><input type="radio" name="how_well" value="Fairly Well" /> Fairly Well</label>
+            <label><input type="radio" name="how_well" value="Acquaintance Only" /> Acquaintance Only</label>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top:16px">
+          <div class="field">
+            <label>Comments on how well you know this person</label>
+            <textarea name="how_well_comments" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>In what capacity do you know this person? <span class="req">*</span></label>
+            <textarea name="capacity" rows="3" placeholder="e.g., colleague, professor, supervisor, neighbor…" required></textarea>
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ratings -->
+    <div class="card">
+      <div class="card-header">Volunteer Ratings</div>
+      <div class="card-body">
+        <p style="font-size:.9rem;color:var(--muted);margin-bottom:20px;">
+          Please rate this prospective volunteer in each area using: <strong>Excellent &mdash; Good &mdash; Average &mdash; Poor</strong>
+        </p>
+
+        <div class="rating-block">
+          <div class="rating-label">Personality</div>
+          <div class="rating-sub">Warmth, friendliness, and sensitivity to others and their feelings</div>
+          <div class="rating-options">
+            <label class="rating-option"><input type="radio" name="rating_personality" value="Excellent" required /><span>Excellent</span></label>
+            <label class="rating-option"><input type="radio" name="rating_personality" value="Good" /><span>Good</span></label>
+            <label class="rating-option"><input type="radio" name="rating_personality" value="Average" /><span>Average</span></label>
+            <label class="rating-option"><input type="radio" name="rating_personality" value="Poor" /><span>Poor</span></label>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="rating-block">
+          <div class="rating-label">Communication Skills</div>
+          <div class="rating-sub">Ability to relate to others in a respectful way</div>
+          <div class="rating-options">
+            <label class="rating-option"><input type="radio" name="rating_communication" value="Excellent" required /><span>Excellent</span></label>
+            <label class="rating-option"><input type="radio" name="rating_communication" value="Good" /><span>Good</span></label>
+            <label class="rating-option"><input type="radio" name="rating_communication" value="Average" /><span>Average</span></label>
+            <label class="rating-option"><input type="radio" name="rating_communication" value="Poor" /><span>Poor</span></label>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="rating-block">
+          <div class="rating-label">Ethics</div>
+          <div class="rating-sub">Is honest and trustworthy both personally and professionally</div>
+          <div class="rating-options">
+            <label class="rating-option"><input type="radio" name="rating_ethics" value="Excellent" required /><span>Excellent</span></label>
+            <label class="rating-option"><input type="radio" name="rating_ethics" value="Good" /><span>Good</span></label>
+            <label class="rating-option"><input type="radio" name="rating_ethics" value="Average" /><span>Average</span></label>
+            <label class="rating-option"><input type="radio" name="rating_ethics" value="Poor" /><span>Poor</span></label>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="rating-block">
+          <div class="rating-label">Emotional Stability</div>
+          <div class="rating-sub">Ability to accept advice and/or criticism; ability to cope with stress</div>
+          <div class="rating-options">
+            <label class="rating-option"><input type="radio" name="rating_emotional" value="Excellent" required /><span>Excellent</span></label>
+            <label class="rating-option"><input type="radio" name="rating_emotional" value="Good" /><span>Good</span></label>
+            <label class="rating-option"><input type="radio" name="rating_emotional" value="Average" /><span>Average</span></label>
+            <label class="rating-option"><input type="radio" name="rating_emotional" value="Poor" /><span>Poor</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open-ended questions -->
+    <div class="card">
+      <div class="card-header">Open-Ended Questions</div>
+      <div class="card-body">
+
+        <div class="field-row">
+          <div class="field">
+            <label>What are this applicant's strengths? <span class="req">*</span></label>
+            <textarea name="strengths" rows="4" required></textarea>
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Do you have concerns about this applicant's ability to handle a crisis or cope with stress?</label>
+            <textarea name="concerns" rows="4" placeholder="If none, write 'None'"></textarea>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Would you feel comfortable having this person work one-to-one with a child of your own or a child close to you? Why or why not? <span class="req">*</span></label>
+            <textarea name="child_comfort" rows="4" required></textarea>
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Would you recommend this person to volunteer with survivors of childhood abuse/neglect, sexual assault, or domestic violence? <span class="req">*</span></label>
+            <textarea name="recommendation" rows="3" required></textarea>
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Additional Comments</label>
+            <textarea name="additional" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn-submit">Download PDF &rarr;</button>
+    </div>
+  </form>
+
+  <div id="thank-you">
+    <div class="icon">✅</div>
+    <h2>Reference Saved!</h2>
+    <p>Your reference PDF has been downloaded. Please email it to
+      <a href="mailto:SAFEVolunteer@safeaustin.org">SAFEVolunteer@safeaustin.org</a>
+      with the subject line: <em>"[Applicant Name] Reference Letter"</em>.
+      <br /><br />Thank you for supporting SAFE volunteers.</p>
+  </div>
+</div>
+
+<script>
+  // Auto-fill today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type="date"]').forEach(d => { if (!d.value) d.value = today; });
+
+  function validate() {
+    const required = document.querySelectorAll('#ref-form [required]');
+    let valid = true;
+    // Reset
+    document.querySelectorAll('.invalid').forEach(e => e.classList.remove('invalid'));
+    document.querySelectorAll('.has-error').forEach(e => e.classList.remove('has-error'));
+
+    required.forEach(el => {
+      if (el.type === 'radio') return; // handled separately
+      const field = el.closest('.field');
+      if (!el.value.trim()) {
+        el.classList.add('invalid');
+        if (field) field.classList.add('has-error');
+        valid = false;
+      }
+    });
+
+    // Radio groups
+    ['how_well','rating_personality','rating_communication','rating_ethics','rating_emotional'].forEach(name => {
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      if (!checked) {
+        const group = document.querySelector(`input[name="${name}"]`).closest('.field, .rating-block');
+        if (group) group.style.outline = '2px solid #c8102e';
+        valid = false;
+      }
+    });
+
+    if (!valid) {
+      const first = document.querySelector('.invalid, [style*="outline"]');
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return valid;
+  }
+
+  document.getElementById('ref-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const data = new FormData(this);
+    const d = {};
+    data.forEach((v, k) => { d[k] = v; });
+
+    generatePDF(d);
+
+    this.style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  function generatePDF(d) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const PW = 612, PH = 792, ML = 50, MR = 50, MT = 50;
+    const CW = PW - ML - MR;
+    let y = MT;
+
+    const BRAND = [0, 90, 142];
+    const ACCENT = [200, 16, 46];
+    const TEXT  = [26, 39, 51];
+    const MUTED = [90, 104, 114];
+
+    function checkPage(needed = 20) {
+      if (y + needed > PH - 50) { doc.addPage(); y = MT; }
+    }
+
+    function sectionHeader(title) {
+      checkPage(36);
+      doc.setFillColor(...BRAND);
+      doc.rect(ML, y, CW, 22, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(title.toUpperCase(), ML + 8, y + 15);
+      y += 30;
+      doc.setTextColor(...TEXT);
+    }
+
+    function field(label, value) {
+      checkPage(28);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MUTED);
+      doc.text(label.toUpperCase(), ML, y);
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(...TEXT);
+      const lines = doc.splitTextToSize((value || '—').toString(), CW - 4);
+      lines.forEach(l => { checkPage(14); doc.text(l, ML, y); y += 14; });
+      y += 5;
+    }
+
+    function ratingRow(label, sub, value) {
+      checkPage(40);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(...TEXT);
+      doc.text(label, ML, y);
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...MUTED);
+      doc.text(sub, ML + doc.getTextWidth(label) + 6, y);
+      y += 14;
+      const opts = ['Excellent', 'Good', 'Average', 'Poor'];
+      let x = ML;
+      opts.forEach(opt => {
+        const selected = opt === value;
+        doc.setFillColor(selected ? ...BRAND : 230, selected ? 230 : 230, selected ? 230 : 230);
+        if (selected) doc.setFillColor(...BRAND); else doc.setFillColor(230, 235, 240);
+        doc.roundedRect(x, y - 10, 80, 18, 3, 3, 'F');
+        doc.setFont('helvetica', selected ? 'bold' : 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(selected ? 255 : 90, selected ? 255 : 104, selected ? 255 : 114);
+        doc.text(opt, x + 40, y + 3, { align: 'center' });
+        x += 90;
+      });
+      y += 22;
+    }
+
+    // ── Header ──
+    doc.setFillColor(...BRAND);
+    doc.rect(0, 0, PW, 70, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Reference for Prospective SAFE Volunteer', PW / 2, 30, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('The SAFE Alliance  |  SAFEVolunteer@safeaustin.org', PW / 2, 50, { align: 'center' });
+    y = 90;
+
+    // ── Intro ──
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.setTextColor(...MUTED);
+    const intro = 'The applicant named below is training to be a volunteer with SAFE and has provided your name as a reference. SAFE volunteers work with individuals who are affected by child abuse/neglect, sexual assault, and domestic violence.';
+    doc.splitTextToSize(intro, CW).forEach(l => { doc.text(l, ML, y); y += 13; });
+    y += 8;
+
+    // ── Basic Info ──
+    sectionHeader('Basic Information');
+    // Two-col: date + blank, then ref name + applicant name
+    const hw = (CW - 12) / 2;
+    const saveY = y;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...MUTED);
+    doc.text("TODAY'S DATE", ML, y); y += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...TEXT);
+    doc.text(d.ref_date || '—', ML, y); y += 19;
+    const afterDate = y; y = saveY;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...MUTED);
+    doc.text('NAME OF REFERENCE', ML + hw + 12, y); y += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...TEXT);
+    doc.text(d.ref_name || '—', ML + hw + 12, y);
+    y = Math.max(afterDate, y + 19);
+
+    const saveY2 = y;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...MUTED);
+    doc.text('REFERENCE PROVIDED FOR', ML, y); y += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...TEXT);
+    doc.text(d.applicant_name || '—', ML, y); y += 19;
+    const afterCol1 = y; y = saveY2;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...MUTED);
+    doc.text('KNOWN HOW LONG', ML + hw + 12, y); y += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...TEXT);
+    doc.text(d.known_length || '—', ML + hw + 12, y);
+    y = Math.max(afterCol1, y + 19);
+
+    field('How well do you know this person?', d.how_well);
+    field('Comments on how well you know this person', d.how_well_comments);
+    field('In what capacity do you know this person?', d.capacity);
+
+    // ── Ratings ──
+    sectionHeader('Volunteer Ratings');
+    ratingRow('Personality', '  Warmth, friendliness, and sensitivity to others', d.rating_personality);
+    y += 6;
+    ratingRow('Communication Skills', '  Ability to relate to others in a respectful way', d.rating_communication);
+    y += 6;
+    ratingRow('Ethics', '  Honest and trustworthy personally and professionally', d.rating_ethics);
+    y += 6;
+    ratingRow('Emotional Stability', '  Accepts advice/criticism; copes with stress', d.rating_emotional);
+    y += 6;
+
+    // ── Open-ended ──
+    sectionHeader('Open-Ended Questions');
+    field("Applicant's Strengths", d.strengths);
+    field('Concerns About Crisis Handling / Stress', d.concerns);
+    field('Comfort Having This Person Work One-to-One With a Child', d.child_comfort);
+    field('Would You Recommend This Person?', d.recommendation);
+    field('Additional Comments', d.additional);
+
+    // ── Footers ──
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...MUTED);
+      doc.text('SAFE Alliance Volunteer Reference — CONFIDENTIAL', ML, PH - 22);
+      doc.text('Page ' + i + ' of ' + pageCount, PW - MR, PH - 22, { align: 'right' });
+      doc.setDrawColor(...BRAND); doc.setLineWidth(0.5);
+      doc.line(ML, PH - 30, PW - MR, PH - 30);
+    }
+
+    const safeName = (d.applicant_name || 'applicant').replace(/\s+/g, '_');
+    doc.save('SAFE_Reference_' + safeName + '.pdf');
+  }
+</script>
+</body>
+</html>
