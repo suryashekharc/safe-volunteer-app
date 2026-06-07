@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAFE Volunteer Application 2025</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --brand: #005a8e;
+      --brand-light: #e8f3fa;
+      --accent: #c8102e;
+      --border: #c8d6e0;
+      --text: #1a2733;
+      --muted: #5a6872;
+      --bg: #f5f8fb;
+      --white: #ffffff;
+      --radius: 8px;
+      --shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--brand);
+      color: #fff;
+      padding: 28px 24px 22px;
+      text-align: center;
+    }
+    .site-header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.3px; }
+    .site-header p  { margin-top: 6px; opacity: .85; font-size: .95rem; }
+
+    /* ── Progress bar ── */
+    #progress-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    #progress-bar .bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    #progress-bar .bar-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 99px;
+      transition: width .3s ease;
+      width: 0%;
+    }
+    #progress-bar .bar-label { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── Layout ── */
+    .form-container {
+      max-width: 860px;
+      margin: 32px auto;
+      padding: 0 16px 60px;
+    }
+
+    /* ── Step / Section card ── */
+    .step {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .step-header {
+      background: var(--brand-light);
+      border-bottom: 2px solid var(--brand);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .step-number {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+      font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 1.05rem; font-weight: 700; color: var(--brand); }
+    .step-body { padding: 24px; }
+
+    /* ── Form elements ── */
+    .field-row {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .field-row.cols-2 { grid-template-columns: 1fr 1fr; }
+    .field-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .field-row.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    @media (max-width: 600px) {
+      .field-row.cols-2,
+      .field-row.cols-3,
+      .field-row.cols-4 { grid-template-columns: 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; }
+    .field label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .field label .req { color: var(--accent); margin-left: 2px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-size: .95rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(0,90,142,.12);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    select { cursor: pointer; }
+
+    /* ── Checkbox / Radio groups ── */
+    .check-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .check-group.inline { flex-direction: row; flex-wrap: wrap; gap: 10px 24px; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .check-item input[type="checkbox"],
+    .check-item input[type="radio"] {
+      width: 17px; height: 17px;
+      margin-top: 2px;
+      accent-color: var(--brand);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .check-item span { font-size: .95rem; }
+
+    /* ── Phone type row ── */
+    .phone-type { display: flex; gap: 20px; margin-top: 6px; align-items: center; }
+    .phone-type label { display: flex; align-items: center; gap: 6px; font-size: .9rem; cursor: pointer; }
+
+    /* ── Section helper text ── */
+    .section-note {
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: #f0f6fb;
+      border-left: 3px solid var(--brand);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* ── Agreement box ── */
+    .agreement-text {
+      background: #fafafa;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      font-size: .88rem;
+      color: #3a4a55;
+      max-height: 220px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      line-height: 1.65;
+    }
+    .agreement-text p { margin-bottom: 10px; }
+    .agreement-text p:last-child { margin-bottom: 0; }
+
+    /* ── Signature field ── */
+    .sig-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    @media (max-width: 600px) { .sig-row { grid-template-columns: 1fr; } }
+
+    /* ── Relationship type checkboxes ── */
+    .rel-boxes { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 10px 0 16px; }
+    .rel-box {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: .9rem;
+      transition: border-color .15s, background .15s;
+    }
+    .rel-box input { accent-color: var(--brand); }
+    .rel-box:has(input:checked) {
+      border-color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    /* ── Nav buttons ── */
+    .nav-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    button {
+      padding: 11px 28px;
+      border-radius: 6px;
+      border: none;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s;
+    }
+    button:hover { filter: brightness(.92); }
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-secondary { background: #e2eaf0; color: var(--brand); }
+    .btn-submit {
+      background: var(--accent);
+      color: #fff;
+      padding: 13px 36px;
+      font-size: 1rem;
+    }
+
+    /* ── Thank-you screen ── */
+    #thank-you {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    #thank-you .icon { font-size: 3.5rem; }
+    #thank-you h2 { margin: 16px 0 10px; font-size: 1.6rem; color: var(--brand); }
+    #thank-you p { color: var(--muted); max-width: 520px; margin: 0 auto; }
+
+    /* ── Validation ── */
+    .field input.invalid,
+    .field select.invalid,
+    .field textarea.invalid {
+      border-color: var(--accent);
+    }
+    .field .err-msg {
+      color: var(--accent);
+      font-size: .78rem;
+      margin-top: 4px;
+      display: none;
+    }
+    .field.has-error .err-msg { display: block; }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .bold { font-weight: 700; }
+    .small { font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>SAFE Volunteer Application</h1>
+  <p>The SAFE Alliance &mdash; 2025 &bull; All prospective volunteers must complete this form</p>
+</header>
+
+<div id="progress-bar">
+  <span class="bar-label" id="step-label">Step 1 of 8</span>
+  <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+</div>
+
+<div class="form-container">
+  <form id="volunteer-form" novalidate>
+
+    <!-- ══ STEP 1: Personal Information ══ -->
+    <div class="step" id="step-1">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <div class="step-title">Personal Information</div>
+      </div>
+      <div class="step-body">
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Date of Application <span class="req">*</span></label>
+            <input type="date" name="app_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date of Birth <span class="req">*</span></label>
+            <input type="date" name="dob" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Legal Name <span class="req">*</span></label>
+            <input type="text" name="legal_name" placeholder="First Middle Last" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Preferred Name / What You Go By</label>
+            <input type="text" name="preferred_name" placeholder="What you'd like to be called" />
+          </div>
+        </div>
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Gender Identity</label>
+            <input type="text" name="gender" placeholder="e.g., Woman, Man, Non-binary…" />
+          </div>
+          <div class="field">
+            <label>Pronouns</label>
+            <input type="text" name="pronouns" placeholder="e.g., she/her, they/them…" />
+          </div>
+        </div>
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Race</label>
+            <select name="race">
+              <option value="">— Select —</option>
+              <option>White</option>
+              <option>Black / African American</option>
+              <option>American Indian / Alaska Native</option>
+              <option>Asian</option>
+              <option>Native Hawaiian / Pacific Islander</option>
+              <option>Other (Multiracial, Mixed)</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Ethnicity</label>
+            <select name="ethnicity">
+              <option value="">— Select —</option>
+              <option>Hispanic or Latino</option>
+              <option>Not Hispanic or Latino</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="field-row">
+          <div class="field">
+            <label>Home Address <span class="req">*</span></label>
+            <input type="text" name="address" placeholder="Street address" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row cols-3">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="city" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>State</label>
+            <input type="text" name="state" value="TX" />
+          </div>
+          <div class="field">
+            <label>ZIP <span class="req">*</span></label>
+            <input type="text" name="zip" maxlength="10" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" name="email" required />
+            <span class="err-msg">Please enter a valid email</span>
+          </div>
+          <div class="field">
+            <label>Best Contact Phone <span class="req">*</span></label>
+            <input type="tel" name="phone" placeholder="(512) 555-0100" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>This phone is a</label>
+          <div class="phone-type">
+            <label><input type="radio" name="phone_type" value="cell" checked /> Cell</label>
+            <label><input type="radio" name="phone_type" value="home" /> Home</label>
+            <label><input type="radio" name="phone_type" value="work" /> Work</label>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Employer</label>
+            <input type="text" name="employer" />
+          </div>
+          <div class="field">
+            <label>Length of Employment</label>
+            <input type="text" name="employment_length" placeholder="e.g., 2 years" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Educational Background</label>
+            <input type="text" name="education" placeholder="Highest level / field of study" />
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-primary" onclick="nextStep(1)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: About Your Interest in SAFE ══ -->
+    <div class="step" id="step-2" style="display:none">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <div class="step-title">About Your Interest in SAFE</div>
+      </div>
+      <div class="step-body">
+
+        <div class="field" style="margin-bottom:20px">
+          <label>How did you learn about SAFE?</label>
+          <div class="check-group inline" style="margin-top:8px">
+            <label class="check-item"><input type="checkbox" name="source" value="volunteer_center" /><span>Volunteer Center</span></label>
+            <label class="check-item"><input type="checkbox" name="source" value="radio_tv" /><span>Radio / Newspaper / TV</span></label>
+            <label class="check-item"><input type="checkbox" name="source" value="website" /><span>SAFE Website</span></label>
+            <label class="check-item"><input type="checkbox" name="source" value="friend" /><span>Friend</span></label>
+            <label class="check-item"><input type="checkbox" name="source" value="other" /><span>Other</span></label>
+          </div>
+          <input type="text" name="source_other" placeholder="If other, please describe…" style="margin-top:10px" />
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Why have you chosen SAFE? (Check all that apply)</label>
+          <div class="check-group" style="margin-top:8px">
+            <label class="check-item"><input type="checkbox" name="motivation" value="academic_credit" /><span>Academic course credit</span></label>
+            <label class="check-item"><input type="checkbox" name="motivation" value="personal_growth" /><span>Personal growth</span></label>
+            <label class="check-item"><input type="checkbox" name="motivation" value="familiarity" /><span>Personal familiarity with domestic violence, sexual assault, or abuse &amp; neglect</span></label>
+            <label class="check-item"><input type="checkbox" name="motivation" value="commitment" /><span>Commitment to ending violence in the community</span></label>
+            <label class="check-item"><input type="checkbox" name="motivation" value="motivation_other" /><span>Other (describe below)</span></label>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Which issue areas interest you? (Check all that apply)</label>
+          <div class="check-group inline" style="margin-top:8px">
+            <label class="check-item"><input type="checkbox" name="issue_area" value="domestic_violence" /><span>Domestic Violence</span></label>
+            <label class="check-item"><input type="checkbox" name="issue_area" value="sexual_violence" /><span>Sexual Violence</span></label>
+            <label class="check-item"><input type="checkbox" name="issue_area" value="child_abuse" /><span>Child Abuse</span></label>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>What do you hope to gain from your volunteer experience? <span class="req">*</span></label>
+          <textarea name="hope_to_gain" rows="3" required placeholder="Share your goals…"></textarea>
+          <span class="err-msg">Required</span>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Which personal strengths will you draw on when working with adults or children in crisis?</label>
+          <textarea name="personal_strengths" rows="3" placeholder="e.g., empathy, active listening, patience…"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Which volunteer opportunities interest you? <span class="small">(Refer to the Volunteer Position Descriptions)</span></label>
+          <textarea name="opportunities" rows="2" placeholder="List the positions you're interested in…"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Any special concerns about working with survivors of child abuse, domestic, or sexual violence?</label>
+          <textarea name="concerns" rows="2" placeholder="If none, write 'None'"></textarea>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(2)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(2)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: Experience & Background ══ -->
+    <div class="step" id="step-3" style="display:none">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <div class="step-title">Experience &amp; Background</div>
+      </div>
+      <div class="step-body">
+
+        <div class="field" style="margin-bottom:16px">
+          <label>Do you have prior experience with children and youth?</label>
+          <div class="phone-type" style="margin-top:8px">
+            <label><input type="radio" name="child_exp" value="yes" /> Yes</label>
+            <label><input type="radio" name="child_exp" value="no" checked /> No</label>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:20px" id="child-exp-detail" style="display:none">
+          <label>If yes — ages and types of activities</label>
+          <textarea name="child_exp_detail" rows="2" placeholder="Describe ages and activities…"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>What training would be most helpful to prepare you for volunteering with SAFE?</label>
+          <textarea name="training_needs" rows="2"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Previous volunteer experience <span class="small">(organization, position, length of time)</span></label>
+          <textarea name="prior_volunteer" rows="3" placeholder="e.g., Austin Food Bank – Sorter – 6 months (2023)"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>What did you like most and least about prior volunteer experiences?</label>
+          <textarea name="prior_likes" rows="3"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Special interests, hobbies, civic or church groups, activities you enjoy</label>
+          <textarea name="interests" rows="2"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Current club / organization memberships (include offices held)</label>
+          <textarea name="memberships" rows="2"></textarea>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Languages other than English (and level of competency)</label>
+          <input type="text" name="languages" placeholder="e.g., Spanish – fluent, Vietnamese – conversational" />
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Describe your volunteer availability</label>
+          <input type="text" name="availability" placeholder="e.g., weekday evenings, Saturday mornings…" />
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>Have you ever received services from SAFE (or its founding agencies Austin Children's Shelter or SafePlace)?</label>
+          <div class="phone-type" style="margin-top:8px">
+            <label><input type="radio" name="prior_services" value="yes" /> Yes</label>
+            <label><input type="radio" name="prior_services" value="no" checked /> No</label>
+          </div>
+          <textarea name="prior_services_detail" rows="2" placeholder="If yes — type of service and approximate date…" style="margin-top:10px"></textarea>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(3)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(3)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 4: Emergency Contact ══ -->
+    <div class="step" id="step-4" style="display:none">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <div class="step-title">Emergency Contact</div>
+      </div>
+      <div class="step-body">
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Emergency Contact Name <span class="req">*</span></label>
+            <input type="text" name="ec_name" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Relationship <span class="req">*</span></label>
+            <input type="text" name="ec_relationship" placeholder="e.g., Parent, Spouse, Friend" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="field-row cols-2">
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" name="ec_phone" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Address</label>
+            <input type="text" name="ec_address" placeholder="Street, City, State, ZIP" />
+          </div>
+        </div>
+
+        <div class="section-note" style="margin-top:8px">
+          Alternative formats of training materials and reasonable accessibility accommodations are available upon request.
+          Please contact Volunteer Services if you need accommodations.
+        </div>
+
+        <div class="field">
+          <label>References</label>
+          <p class="small" style="margin-top:4px; line-height:1.6">
+            Please supply <strong>3 letters of reference</strong>. Each reference must be submitted by the individual writing the letter and emailed directly to
+            <a href="mailto:safevolunteer@safeaustin.org">safevolunteer@safeaustin.org</a>
+            with the subject line: <em>"[Your Name] Reference Letter"</em>.<br />
+            At least one reference must be a <strong>professional reference</strong> (employer, professor, or prior volunteer supervisor).
+          </p>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(4)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(4)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 5: Confidentiality Agreement ══ -->
+    <div class="step" id="step-5" style="display:none">
+      <div class="step-header">
+        <div class="step-number">5</div>
+        <div class="step-title">Confidentiality Agreement</div>
+      </div>
+      <div class="step-body">
+
+        <div class="agreement-text">
+          <p>This Confidentiality Agreement covers the services provided by The SAFE Alliance ("SAFE") and the information shared by clients, as well as information designated by SAFE as sensitive information, including confidential business or personnel matters. The confidentiality agreement also includes photography and video, which may not be taken or shared unless it is done as part of the services provided and a SAFE Alliance-approved consent form has been signed.</p>
+          <p>Any information concerning the identity of individuals served by SAFE is to be kept confidential at all times, except as otherwise specified below.</p>
+          <p><strong>SAFE may be required to share confidential information when:</strong></p>
+          <p>SAFE is bound by law to report suspected child abuse, elder abuse and/or the abuse of a person with a disability; homicide, homicidal or suicidal threats. Staff is authorized to comply with the law by making all required reports.</p>
+          <p>A SAFE client signs a specific authorization to release information and the authorization is in the client's file.</p>
+          <p>SAFE may need to comply with court orders and properly issued subpoenas.</p>
+          <p>SAFE staff are bound by state law requirements to report abusive, illegal or sexually exploitive acts by other mental health professionals or organizations.</p>
+          <p>SAFE has video cameras installed on its campuses and in SAFE-owned vehicles for the safety and security of clients, staff, and visitors. SAFE does not share video recordings except as required by law or if SAFE suspects illegal activity. To protect privacy and confidentiality, SAFE does not allow audio/video recording or photos of other clients or staff on personal devices.</p>
+          <p>If necessary for a client's benefit, client information may be shared among SAFE staff or volunteers to assist in service provision. If there is a public health emergency and SAFE has knowledge that you may have been exposed to a communicable disease, SAFE may be required by law to report your name and contact information to public health authorities.</p>
+          <p><strong>I have read, understood, and agree it is my legal responsibility to comply with this Confidentiality Agreement while at SAFE and after ending my association with SAFE.</strong></p>
+        </div>
+
+        <div class="field" style="margin-bottom:16px">
+          <label>I am a</label>
+          <div class="rel-boxes">
+            <label class="rel-box"><input type="radio" name="conf_role" value="volunteer" checked /> Volunteer</label>
+            <label class="rel-box"><input type="radio" name="conf_role" value="client" /> Client</label>
+            <label class="rel-box"><input type="radio" name="conf_role" value="staff" /> Staff</label>
+            <label class="rel-box"><input type="radio" name="conf_role" value="board" /> Board / Foundation Member</label>
+            <label class="rel-box"><input type="radio" name="conf_role" value="dfps" /> DFPS</label>
+            <label class="rel-box"><input type="radio" name="conf_role" value="other_role" /> Other</label>
+          </div>
+          <input type="text" name="conf_role_other" placeholder="If other, please specify…" />
+        </div>
+
+        <div class="sig-row">
+          <div class="field">
+            <label>Signature (type your full legal name) <span class="req">*</span></label>
+            <input type="text" name="conf_signature" placeholder="Type full name as signature" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="conf_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="sig-row" style="margin-top:12px">
+          <div class="field">
+            <label>Parent / Guardian Signature (if applicant is a minor)</label>
+            <input type="text" name="guardian_signature" />
+          </div>
+          <div class="field">
+            <label>Printed Name</label>
+            <input type="text" name="guardian_name" />
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(5)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(5)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 6: Liability Release ══ -->
+    <div class="step" id="step-6" style="display:none">
+      <div class="step-header">
+        <div class="step-number">6</div>
+        <div class="step-title">Liability Release</div>
+      </div>
+      <div class="step-body">
+
+        <div class="agreement-text">
+          <p>I understand that while working at SAFE I may come into contact with infections and contagious diseases such as hepatitis B, salmonella, ringworm, tuberculosis, pink-eye, AIDS, and other types of diseases. I understand that SAFE may not be aware that some of the residents have a disease, and that, even if the staff is aware, they may not tell other persons due to privacy concerns. I also understand that SAFE is not undertaking any duty to determine whether a resident has a disease.</p>
+          <p>I also understand that it is my personal choice as to the precautions I wish to take. While I understand that SAFE is in no way undertaking the responsibility for advising me as to appropriate precautions to take, I am aware that health officials recommend wearing disposable gloves (which are supplied at the shelter) while cleaning up spills of blood, bloody saliva, urine, feces, or vomit, and using a mouthpiece for mouth-to-mouth resuscitation.</p>
+          <p>I have made the choice to be here and I will not hold SAFE liable for health problems I may incur while at any SAFE facility even if they are caused in whole, or in part, as a result of the negligence of a staff member or resident.</p>
+        </div>
+
+        <div class="field" style="margin-bottom:16px">
+          <label>Do you have a physical condition that would affect your ability to lift up to 40 lbs?</label>
+          <div class="phone-type" style="margin-top:8px">
+            <label><input type="radio" name="physical_limit" value="yes" /> Yes</label>
+            <label><input type="radio" name="physical_limit" value="no" checked /> No</label>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:20px">
+          <label>If yes, please explain</label>
+          <textarea name="physical_limit_detail" rows="3"></textarea>
+        </div>
+
+        <div class="sig-row">
+          <div class="field">
+            <label>Volunteer Signature (type full legal name) <span class="req">*</span></label>
+            <input type="text" name="liability_signature" placeholder="Type full name as signature" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="liability_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(6)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(6)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 7: Mutual Commitment + Physical Intervention Policy ══ -->
+    <div class="step" id="step-7" style="display:none">
+      <div class="step-header">
+        <div class="step-number">7</div>
+        <div class="step-title">Mutual Commitment Form &amp; Physical Intervention Policy</div>
+      </div>
+      <div class="step-body">
+
+        <p class="bold" style="margin-bottom:10px">SAFE agrees to:</p>
+        <ul style="margin: 0 0 16px 20px; font-size:.93rem; line-height:1.8">
+          <li>Provide quality training to volunteers</li>
+          <li>Provide support and assistance to volunteers</li>
+          <li>Furnish supplies and facilities to enable volunteers to function effectively</li>
+          <li>Provide an agency policy regarding volunteer responsibilities and expectations</li>
+        </ul>
+
+        <p class="bold" style="margin-bottom:10px">As a volunteer for SAFE, I agree to:</p>
+        <div class="agreement-text">
+          <ul style="margin-left:18px; line-height:1.9">
+            <li>Make a commitment of at least 8 hours per month for a minimum of 6 months beginning after all training is completed (some programs require a larger time commitment).</li>
+            <li>Affirm that information provided in this application is true and correct to the best of my knowledge.</li>
+            <li>Inform SAFE if I am named in complaints or indictments or convicted of offenses.</li>
+            <li>Be open to on-going suggestions for improvement from staff.</li>
+            <li>Participate in any and all training required by programs.</li>
+            <li>Adhere to the confidentiality policy.</li>
+            <li>Adhere to emergency, security, and shift procedures specified for the program site.</li>
+            <li>Maintain appropriate boundaries with clients.</li>
+            <li>Never allow family, friends, or anyone else on SAFE premises without prior approval of my volunteer supervisor or other authorized SAFE staff.</li>
+            <li>Never carry a firearm or other type of weapon on any SAFE premises.</li>
+            <li>Attend required volunteer support meetings or continuing education classes.</li>
+            <li>Notify my Volunteer Supervisor if I will be unavailable to volunteer for a given period of time.</li>
+            <li>Understand that if I miss more than 2 shifts and fail to notify staff, my volunteer status may be terminated.</li>
+            <li>Accept the Volunteer Director's final decision as to my involvement with SAFE.</li>
+            <li>Take any questions regarding SAFE policies, staff decisions, or the performance or conduct of another volunteer to my supervisor.</li>
+            <li>Understand that SAFE reserves the right to terminate volunteer assignments at any time.</li>
+          </ul>
+          <p style="margin-top:10px">I realize that breaching this agreement may be cause for my immediate dismissal.</p>
+        </div>
+
+        <div class="sig-row" style="margin-top:16px">
+          <div class="field">
+            <label>Volunteer Signature (type full legal name) <span class="req">*</span></label>
+            <input type="text" name="commitment_signature" placeholder="Type full name as signature" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="commitment_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <hr style="margin: 28px 0" />
+
+        <p class="bold" style="margin-bottom:10px; color:var(--accent)">Volunteer Physical Intervention Policy</p>
+        <div class="agreement-text">
+          <p>I understand that as a volunteer with SAFE:</p>
+          <ul style="margin-left:18px; line-height:1.9">
+            <li>I will let staff handle aggressive situations.</li>
+            <li>If I am volunteering at the SAFE Children's Shelter campus, I will go to another cottage or locate staff to request help when needed.</li>
+            <li>I will move away from any aggressive situation.</li>
+            <li>If a resident is being aggressive, I will engage the other youth who are not involved and encourage them to move away from the crisis situation.</li>
+            <li>I will not place my hands on a resident to contain, restrain, or otherwise prohibit the movement of a resident.</li>
+            <li>I will not contain, restrain, or otherwise prohibit the movement of a resident for any reason, nor may I assist staff in doing so.</li>
+          </ul>
+          <p style="margin-top:10px">I understand that as a volunteer I may not ever put hands on a resident during a conflict situation. I cannot physically intervene with any children/youth receiving services by SAFE. I will let trained staff manage any crisis situations and will not physically engage for any reason, even if asked to do so by staff. If I physically intervene during a crisis with any resident, I acknowledge that I could lose my placement as a volunteer. I will contact Volunteer Services Staff if I witness a crisis or otherwise significant incident or am asked to do something I was trained not to do.</p>
+        </div>
+
+        <div class="sig-row" style="margin-top:16px">
+          <div class="field">
+            <label>Volunteer Signature (type full legal name) <span class="req">*</span></label>
+            <input type="text" name="intervention_signature" placeholder="Type full name as signature" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="intervention_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(7)">&larr; Back</button>
+          <button type="button" class="btn-primary" onclick="nextStep(7)">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 8: Consent & Likeness Release ══ -->
+    <div class="step" id="step-8" style="display:none">
+      <div class="step-header">
+        <div class="step-number">8</div>
+        <div class="step-title">Consent &amp; Release for Use of Likeness</div>
+      </div>
+      <div class="step-body">
+
+        <div class="agreement-text">
+          <p>I hereby grant permission to The SAFE Alliance—including any and all of its subsidiaries, licensees, successors, assignees, and any and all other individuals, agencies, corporations, organizations, etc. acting on behalf of The SAFE Alliance, including but not limited to Austin Children's Shelter and SafePlace—to obtain and use the voice, image, photograph, likeness, and/or video of myself by any medium (including but not limited to video, audio, and photo or other image, natural or altered in any state by any manner). Permission extends into perpetuity.</p>
+          <p>For a valuable consideration, receipt of which is hereby acknowledged, I hereby grant the Released Party all ownership rights and the absolute and irrevocable right and permission to copyright, use and publish the Likeness of myself. The Likeness may be copyrighted, used and/or published individually or in conjunction with other photography or video works, and in any medium (including without limitation, print publications, public broadcast, social media, and other digital formats) and for any lawful purpose, including without limitation, trade, exhibition, illustration, promotion, publicity, advertising and electronic publication.</p>
+        </div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label class="check-item">
+            <input type="checkbox" name="likeness_consent" id="likeness_consent" />
+            <span>I grant the above consent and release for use of my likeness. <span class="req">*</span></span>
+          </label>
+        </div>
+
+        <div class="sig-row">
+          <div class="field">
+            <label>Your Full Legal Name <span class="req">*</span></label>
+            <input type="text" name="likeness_name" placeholder="Type full name" required />
+            <span class="err-msg">Required</span>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" name="likeness_date" required />
+            <span class="err-msg">Required</span>
+          </div>
+        </div>
+
+        <hr style="margin:24px 0" />
+
+        <div class="section-note">
+          <strong>Almost done!</strong> By clicking Submit, you confirm that all information provided is accurate to the best of your knowledge. An electronic copy of your application will be sent to the SAFE Volunteer Services team for review. You will be contacted about next steps.
+        </div>
+
+        <div class="nav-row">
+          <button type="button" class="btn-secondary" onclick="prevStep(8)">&larr; Back</button>
+          <button type="submit" class="btn-submit">Submit Application &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Thank-you screen -->
+  <div id="thank-you">
+    <div class="icon">✅</div>
+    <h2>Application Submitted!</h2>
+    <p>Thank you for applying to volunteer with SAFE. Your application has been received and the Volunteer Services team will be in touch with you soon about next steps.<br /><br />
+    Remember to arrange for your <strong>3 reference letters</strong> to be emailed to <a href="mailto:safevolunteer@safeaustin.org">safevolunteer@safeaustin.org</a> with the subject: <em>"[Your Name] Reference Letter"</em>.</p>
+  </div>
+</div>
+
+<script>
+  const TOTAL_STEPS = 8;
+  let currentStep = 1;
+
+  function showStep(n) {
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const el = document.getElementById('step-' + i);
+      if (el) el.style.display = (i === n) ? 'block' : 'none';
+    }
+    currentStep = n;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateProgress() {
+    const pct = ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100;
+    document.getElementById('bar-fill').style.width = pct + '%';
+    document.getElementById('step-label').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS;
+  }
+
+  function validateStep(n) {
+    const step = document.getElementById('step-' + n);
+    const required = step.querySelectorAll('[required]');
+    let valid = true;
+    required.forEach(el => {
+      const field = el.closest('.field');
+      if (!el.value.trim()) {
+        el.classList.add('invalid');
+        if (field) field.classList.add('has-error');
+        valid = false;
+      } else {
+        el.classList.remove('invalid');
+        if (field) field.classList.remove('has-error');
+      }
+      // Email validation
+      if (el.type === 'email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) {
+        el.classList.add('invalid');
+        if (field) field.classList.add('has-error');
+        valid = false;
+      }
+    });
+    if (!valid) {
+      const firstErr = step.querySelector('.invalid');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return valid;
+  }
+
+  function nextStep(n) {
+    if (!validateStep(n)) return;
+    if (n < TOTAL_STEPS) showStep(n + 1);
+  }
+
+  function prevStep(n) {
+    if (n > 1) showStep(n - 1);
+  }
+
+  // Show/hide child experience detail
+  document.querySelectorAll('input[name="child_exp"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const detail = document.getElementById('child-exp-detail');
+      if (detail) detail.style.display = r.value === 'yes' ? 'block' : 'none';
+    });
+  });
+
+  // Auto-fill today's date in all date fields on load
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type="date"]').forEach(d => {
+    if (!d.value) d.value = today;
+  });
+
+  // Form submit
+  document.getElementById('volunteer-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validateStep(8)) return;
+
+    const likenessChecked = document.getElementById('likeness_consent').checked;
+    if (!likenessChecked) {
+      alert('Please confirm your consent for use of likeness before submitting.');
+      return;
+    }
+
+    // Collect form data
+    const data = new FormData(this);
+    const obj = {};
+    data.forEach((v, k) => {
+      if (obj[k]) { obj[k] = [].concat(obj[k], v); } else { obj[k] = v; }
+    });
+
+    generatePDF(obj);
+
+    document.getElementById('volunteer-form').style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+    document.getElementById('progress-bar').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  function generatePDF(d) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+    const PW = 612, PH = 792;
+    const ML = 50, MR = 50, MT = 50;
+    const CW = PW - ML - MR;
+    let y = MT;
+
+    const BRAND = [0, 90, 142];
+    const ACCENT = [200, 16, 46];
+    const TEXT  = [26, 39, 51];
+    const MUTED = [90, 104, 114];
+    const LIGHT = [232, 243, 250];
+
+    function checkPage(needed = 20) {
+      if (y + needed > PH - 40) {
+        doc.addPage();
+        y = MT;
+      }
+    }
+
+    function sectionHeader(title) {
+      checkPage(36);
+      doc.setFillColor(...BRAND);
+      doc.rect(ML, y, CW, 22, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(title.toUpperCase(), ML + 8, y + 15);
+      y += 30;
+      doc.setTextColor(...TEXT);
+    }
+
+    function fieldPair(label, value, x = ML, w = CW) {
+      checkPage(28);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MUTED);
+      doc.text(label.toUpperCase(), x, y);
+      y += 11;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(...TEXT);
+      const val = (value || '—').toString();
+      const lines = doc.splitTextToSize(val, w - 4);
+      lines.forEach(line => {
+        checkPage(14);
+        doc.text(line, x, y);
+        y += 14;
+      });
+      y += 4;
+    }
+
+    function twoCols(pairs) {
+      const colW = (CW - 12) / 2;
+      const startY = y;
+      let rightY = y;
+      pairs.forEach((pair, i) => {
+        const x = i % 2 === 0 ? ML : ML + colW + 12;
+        if (i % 2 === 0 && i > 0) { y = Math.max(y, rightY); rightY = y; }
+        if (i % 2 === 0) { const before = y; fieldPair(pair[0], pair[1], x, colW); rightY = y; y = before; }
+        else { fieldPair(pair[0], pair[1], x, colW); rightY = y; y = rightY; }
+      });
+      if (pairs.length % 2 !== 0) y = rightY;
+      else y = Math.max(y, rightY);
+    }
+
+    function sigBlock(sigLabel, sigVal, dateVal) {
+      checkPage(50);
+      doc.setDrawColor(...BRAND);
+      doc.setLineWidth(0.5);
+      const halfW = (CW - 16) / 2;
+      // sig
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(11);
+      doc.setTextColor(...BRAND);
+      doc.text(sigVal || '', ML + 4, y + 2);
+      doc.line(ML, y + 6, ML + halfW, y + 6);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...MUTED);
+      doc.text(sigLabel.toUpperCase(), ML, y + 16);
+      // date
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(...TEXT);
+      doc.text(dateVal || '', ML + halfW + 20, y + 2);
+      doc.line(ML + halfW + 16, y + 6, ML + CW, y + 6);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...MUTED);
+      doc.text('DATE', ML + halfW + 16, y + 16);
+      y += 28;
+    }
+
+    function checkList(label, values) {
+      checkPage(24);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MUTED);
+      doc.text(label.toUpperCase(), ML, y);
+      y += 12;
+      const list = [].concat(values || []).filter(Boolean);
+      if (list.length === 0) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+        doc.setTextColor(...TEXT); doc.text('—', ML + 4, y); y += 16;
+      } else {
+        list.forEach(v => {
+          checkPage(14);
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+          doc.setTextColor(...TEXT);
+          doc.text('•  ' + v, ML + 4, y); y += 14;
+        });
+        y += 4;
+      }
+    }
+
+    function agreementBlock(title, snippets) {
+      checkPage(30);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...ACCENT);
+      doc.text(title, ML, y); y += 13;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...MUTED);
+      snippets.forEach(s => {
+        const lines = doc.splitTextToSize(s, CW);
+        lines.forEach(l => { checkPage(11); doc.text(l, ML, y); y += 11; });
+        y += 3;
+      });
+      y += 4;
+    }
+
+    // ── Title page header ──
+    doc.setFillColor(...BRAND);
+    doc.rect(0, 0, PW, 70, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(255, 255, 255);
+    doc.text('SAFE Alliance — Volunteer Application', PW / 2, 32, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('2025  |  Submitted: ' + (d.app_date || new Date().toLocaleDateString()), PW / 2, 52, { align: 'center' });
+    y = 90;
+
+    // ── 1. Personal Information ──
+    sectionHeader('1. Personal Information');
+    twoCols([
+      ['Legal Name', d.legal_name],
+      ['Preferred Name', d.preferred_name],
+      ['Date of Birth', d.dob],
+      ['Date of Application', d.app_date],
+      ['Gender Identity', d.gender],
+      ['Pronouns', d.pronouns],
+      ['Race', d.race],
+      ['Ethnicity', d.ethnicity],
+    ]);
+    fieldPair('Home Address', [d.address, d.city, d.state, d.zip].filter(Boolean).join(', '));
+    twoCols([
+      ['Email', d.email],
+      ['Best Contact Phone (' + (d.phone_type || 'cell') + ')', d.phone],
+      ['Employer', d.employer],
+      ['Length of Employment', d.employment_length],
+    ]);
+    fieldPair('Educational Background', d.education);
+
+    // ── 2. Interest in SAFE ──
+    sectionHeader('2. Interest in SAFE');
+    checkList('How Did You Hear About SAFE?', d.source);
+    fieldPair('Other Source', d.source_other);
+    checkList('Motivation / Why SAFE?', d.motivation);
+    checkList('Issue Areas of Interest', d.issue_area);
+    fieldPair('What Do You Hope to Gain?', d.hope_to_gain);
+    fieldPair('Personal Strengths', d.personal_strengths);
+    fieldPair('Volunteer Opportunities of Interest', d.opportunities);
+    fieldPair('Special Concerns', d.concerns);
+
+    // ── 3. Experience & Background ──
+    sectionHeader('3. Experience & Background');
+    fieldPair('Prior Experience with Children & Youth', d.child_exp === 'yes' ? 'Yes — ' + (d.child_exp_detail || '') : 'No');
+    fieldPair('Training That Would Be Most Helpful', d.training_needs);
+    fieldPair('Previous Volunteer Experience', d.prior_volunteer);
+    fieldPair('Most / Least Liked About Prior Volunteer Work', d.prior_likes);
+    fieldPair('Special Interests / Hobbies / Groups', d.interests);
+    fieldPair('Club / Organization Memberships', d.memberships);
+    fieldPair('Languages Other Than English', d.languages);
+    fieldPair('Volunteer Availability', d.availability);
+    fieldPair('Prior SAFE Services', d.prior_services === 'yes' ? 'Yes — ' + (d.prior_services_detail || '') : 'No');
+
+    // ── 4. Emergency Contact ──
+    sectionHeader('4. Emergency Contact');
+    twoCols([
+      ['Name', d.ec_name],
+      ['Relationship', d.ec_relationship],
+      ['Phone', d.ec_phone],
+      ['Address', d.ec_address],
+    ]);
+
+    // ── 5. Confidentiality Agreement ──
+    sectionHeader('5. Confidentiality Agreement');
+    agreementBlock('Agreement', [
+      'Any information concerning the identity of individuals served by SAFE is to be kept confidential at all times. The signer has read, understood, and agrees it is their legal responsibility to comply with this Confidentiality Agreement while at SAFE and after ending their association with SAFE.'
+    ]);
+    fieldPair('Role', d.conf_role + (d.conf_role === 'other_role' ? ' — ' + (d.conf_role_other || '') : ''));
+    sigBlock('Signature', d.conf_signature, d.conf_date);
+    if (d.guardian_signature) {
+      twoCols([
+        ['Parent/Guardian Signature', d.guardian_signature],
+        ['Parent/Guardian Printed Name', d.guardian_name],
+      ]);
+    }
+
+    // ── 6. Liability Release ──
+    sectionHeader('6. Liability Release');
+    agreementBlock('Agreement', [
+      'I have made the choice to be here and I will not hold SAFE liable for health problems I may incur while at any SAFE facility even if they are caused in whole, or in part, as a result of the negligence of a staff member or resident.'
+    ]);
+    fieldPair('Physical Condition Affecting Ability to Lift 40 lbs?',
+      d.physical_limit === 'yes' ? 'Yes — ' + (d.physical_limit_detail || '') : 'No');
+    sigBlock('Volunteer Signature', d.liability_signature, d.liability_date);
+
+    // ── 7. Mutual Commitment + Physical Intervention ──
+    sectionHeader('7. Mutual Commitment Form');
+    agreementBlock('Volunteer Commitments', [
+      'Minimum 8 hrs/month for 6 months. Information provided is true and correct. Will comply with all SAFE policies, confidentiality requirements, emergency procedures, and boundary standards. Will never carry a firearm on SAFE premises.'
+    ]);
+    sigBlock('Volunteer Signature', d.commitment_signature, d.commitment_date);
+
+    sectionHeader('7b. Physical Intervention Policy');
+    agreementBlock('Policy', [
+      'I will not place my hands on a resident to contain, restrain, or otherwise prohibit the movement of a resident for any reason. I will let trained staff manage any crisis situations and will not physically engage for any reason, even if asked to do so by staff.'
+    ]);
+    sigBlock('Volunteer Signature', d.intervention_signature, d.intervention_date);
+
+    // ── 8. Consent & Likeness Release ──
+    sectionHeader('8. Consent & Release for Use of Likeness');
+    agreementBlock('Grant of Rights', [
+      'Grants The SAFE Alliance the absolute and irrevocable right and permission to copyright, use, and publish the signer\'s voice, image, photograph, likeness, and/or video in any medium for any lawful purpose in perpetuity.'
+    ]);
+    fieldPair('Consent Granted', d.likeness_consent ? 'Yes' : 'No');
+    sigBlock('Printed Name / Signature', d.likeness_name, d.likeness_date);
+
+    // ── Footer on every page ──
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...MUTED);
+      doc.text('SAFE Alliance Volunteer Application 2025 — CONFIDENTIAL', ML, PH - 22);
+      doc.text('Page ' + i + ' of ' + pageCount, PW - MR, PH - 22, { align: 'right' });
+      doc.setDrawColor(...BRAND);
+      doc.setLineWidth(0.5);
+      doc.line(ML, PH - 30, PW - MR, PH - 30);
+    }
+
+    const safeName = (d.legal_name || 'volunteer').replace(/\s+/g, '_');
+    doc.save('SAFE_Volunteer_Application_' + safeName + '.pdf');
+  }
+
+  // Init
+  showStep(1);
+</script>
+</body>
+</html>
