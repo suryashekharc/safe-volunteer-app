@@ -169,7 +169,10 @@
     #thank-you h2 { font-family: "DM Serif Display", serif; margin: 16px 0 10px; font-size: 1.7rem; font-weight: 400; color: var(--brand-dark); }
     #thank-you p { color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
 
-    .field input.invalid, .field select.invalid, .field textarea.invalid { border-color: var(--accent); }
+    .field input.invalid, .field select.invalid, .field textarea.invalid {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px rgba(201,128,122,.18);
+    }
     .field .err-msg { color: var(--accent); font-size: .77rem; margin-top: 4px; display: none; }
     .field.has-error .err-msg { display: block; }
 
@@ -855,10 +858,10 @@
     });
   });
 
-  // Auto-fill today's date in all date fields on load
+  // Auto-fill today's date — but NOT dob (user must enter their own birth date)
   const today = new Date().toISOString().split('T')[0];
   document.querySelectorAll('input[type="date"]').forEach(d => {
-    if (!d.value) d.value = today;
+    if (!d.value && d.name !== 'dob') d.value = today;
   });
 
   // Form submit
@@ -896,11 +899,10 @@
     const CW = PW - ML - MR;
     let y = MT;
 
-    const BRAND = [0, 90, 142];
-    const ACCENT = [200, 16, 46];
-    const TEXT  = [26, 39, 51];
-    const MUTED = [90, 104, 114];
-    const LIGHT = [232, 243, 250];
+    const BRAND = [92, 125, 105];
+    const ACCENT = [170, 100, 95];
+    const TEXT  = [45, 58, 50];
+    const MUTED = [107, 122, 110];
 
     function checkPage(needed = 20) {
       if (y + needed > PH - 40) {
@@ -943,16 +945,16 @@
 
     function twoCols(pairs) {
       const colW = (CW - 12) / 2;
-      const startY = y;
-      let rightY = y;
-      pairs.forEach((pair, i) => {
-        const x = i % 2 === 0 ? ML : ML + colW + 12;
-        if (i % 2 === 0 && i > 0) { y = Math.max(y, rightY); rightY = y; }
-        if (i % 2 === 0) { const before = y; fieldPair(pair[0], pair[1], x, colW); rightY = y; y = before; }
-        else { fieldPair(pair[0], pair[1], x, colW); rightY = y; y = rightY; }
-      });
-      if (pairs.length % 2 !== 0) y = rightY;
-      else y = Math.max(y, rightY);
+      for (let i = 0; i < pairs.length; i += 2) {
+        const rowStart = y;
+        fieldPair(pairs[i][0], pairs[i][1], ML, colW);
+        const leftBottom = y;
+        if (i + 1 < pairs.length) {
+          y = rowStart;
+          fieldPair(pairs[i + 1][0], pairs[i + 1][1], ML + colW + 12, colW);
+          y = Math.max(leftBottom, y);
+        }
+      }
     }
 
     function sigBlock(sigLabel, sigVal, dateVal) {

@@ -103,6 +103,25 @@
     #thank-you p { color: var(--muted); max-width: 500px; margin: 0 auto; line-height: 1.7; }
 
     hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* Validation error states */
+    .field input.invalid,
+    .field textarea.invalid { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(201,128,122,.18); }
+    .field.has-error .err-msg { display: block; }
+    .group-error {
+      border: 1.5px solid var(--accent) !important;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fdf6f5;
+      position: relative;
+    }
+    .group-error::after {
+      content: "Please select an option";
+      display: block;
+      color: var(--accent);
+      font-size: .77rem;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -313,14 +332,16 @@
   document.querySelectorAll('input[type="date"]').forEach(d => { if (!d.value) d.value = today; });
 
   function validate() {
-    const required = document.querySelectorAll('#ref-form [required]');
     let valid = true;
-    // Reset
+
+    // Clear all previous error states
     document.querySelectorAll('.invalid').forEach(e => e.classList.remove('invalid'));
     document.querySelectorAll('.has-error').forEach(e => e.classList.remove('has-error'));
+    document.querySelectorAll('.group-error').forEach(e => e.classList.remove('group-error'));
 
-    required.forEach(el => {
-      if (el.type === 'radio') return; // handled separately
+    // Text / textarea / date fields
+    document.querySelectorAll('#ref-form [required]').forEach(el => {
+      if (el.type === 'radio') return;
       const field = el.closest('.field');
       if (!el.value.trim()) {
         el.classList.add('invalid');
@@ -329,18 +350,17 @@
       }
     });
 
-    // Radio groups
+    // Radio groups — highlight the whole block if nothing is selected
     ['how_well','rating_personality','rating_communication','rating_ethics','rating_emotional'].forEach(name => {
-      const checked = document.querySelector(`input[name="${name}"]:checked`);
-      if (!checked) {
-        const group = document.querySelector(`input[name="${name}"]`).closest('.field, .rating-block');
-        if (group) group.style.outline = '2px solid #c8102e';
+      if (!document.querySelector(`input[name="${name}"]:checked`)) {
+        const group = document.querySelector(`input[name="${name}"]`).closest('.how-well, .rating-block');
+        if (group) group.classList.add('group-error');
         valid = false;
       }
     });
 
     if (!valid) {
-      const first = document.querySelector('.invalid, [style*="outline"]');
+      const first = document.querySelector('.invalid, .group-error');
       if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return valid;
@@ -368,10 +388,10 @@
     const CW = PW - ML - MR;
     let y = MT;
 
-    const BRAND = [0, 90, 142];
-    const ACCENT = [200, 16, 46];
-    const TEXT  = [26, 39, 51];
-    const MUTED = [90, 104, 114];
+    const BRAND = [92, 125, 105];
+    const ACCENT = [170, 100, 95];
+    const TEXT  = [45, 58, 50];
+    const MUTED = [107, 122, 110];
 
     function checkPage(needed = 20) {
       if (y + needed > PH - 50) { doc.addPage(); y = MT; }
@@ -405,7 +425,7 @@
     }
 
     function ratingRow(label, sub, value) {
-      checkPage(40);
+      checkPage(44);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(...TEXT);
@@ -414,21 +434,28 @@
       doc.setFontSize(8.5);
       doc.setTextColor(...MUTED);
       doc.text(sub, ML + doc.getTextWidth(label) + 6, y);
-      y += 14;
+      y += 16;
       const opts = ['Excellent', 'Good', 'Average', 'Poor'];
       let x = ML;
       opts.forEach(opt => {
         const selected = opt === value;
-        doc.setFillColor(selected ? ...BRAND : 230, selected ? 230 : 230, selected ? 230 : 230);
-        if (selected) doc.setFillColor(...BRAND); else doc.setFillColor(230, 235, 240);
-        doc.roundedRect(x, y - 10, 80, 18, 3, 3, 'F');
+        if (selected) {
+          doc.setFillColor(...BRAND);
+        } else {
+          doc.setFillColor(225, 232, 227);
+        }
+        doc.roundedRect(x, y - 11, 82, 18, 3, 3, 'F');
         doc.setFont('helvetica', selected ? 'bold' : 'normal');
         doc.setFontSize(9);
-        doc.setTextColor(selected ? 255 : 90, selected ? 255 : 104, selected ? 255 : 114);
-        doc.text(opt, x + 40, y + 3, { align: 'center' });
-        x += 90;
+        if (selected) {
+          doc.setTextColor(255, 255, 255);
+        } else {
+          doc.setTextColor(...MUTED);
+        }
+        doc.text(opt, x + 41, y + 3, { align: 'center' });
+        x += 92;
       });
-      y += 22;
+      y += 20;
     }
 
     // ── Header ──
